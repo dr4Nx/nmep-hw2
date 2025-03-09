@@ -8,7 +8,7 @@ This is the worksheet for Homework 1. Your deliverables for this homework are:
 - [ ] Kaggle submission and writeup (details below)
 - [ ] Github repo with all of your code! You need to either fork it or just copy the code over to your repo. A simple way of doing this is provided below. Include the link to your repo below. If you would like to make the repo private, please dm us and we'll send you the GitHub usernames to add as collaborators.
 
-`YOUR GITHUB REPO HERE (or notice that you DMed us to share a private repo)`
+`https://github.com/dr4Nx/nmep-hw2`
 
 ## To move to your own repo:
 
@@ -28,15 +28,15 @@ Feel free to ask your NMEP friends if you don't know!
 
 ## -1.0 What is the difference between `torch.nn.Module` and `torch.nn.functional`?
 
-`YOUR ANSWER HERE`
+`Module is a base class for all neural networks. It takes an object oriented approach to models (having built in methods for model management). Functional uses a stateless approach, meaning it doesn't store model parameters or require explicit layer definitions.`
 
 ## -1.1 What is the difference between a Dataset and a DataLoader?
 
-`YOUR ANSWER HERE`
+`A Dataset simply represents the collection of data points. It does not handle functional behavior like batching, shuffling, etc. DataLoader effectively serves as a wrapper for a Dataset, allowing for batching, shuffling, and more efficient data access.`
 
 ## -1.2 What does `@torch.no_grad()` above a function header do?
 
-`YOUR ANSWER HERE`
+`It disables gradient computation within a specific function, reducing memory usage (particularly to stop backprop during evals)`
 
 
 
@@ -46,26 +46,34 @@ Read through `README.md` and follow the steps to understand how the repo is stru
 
 ## 0.0 What are the `build.py` files? Why do we have them?**
 
-`YOUR ANSWER HERE`
+`build.py files are used to build the model and data loaders using the configs. Generally all the config parameters are handled in the build files, which then call the appropriate class to build the model or data loader. They are used and implemented in such a way that the code can be written free of any config dependencies, since they handle the difference`
 
 ## 0.1 Where would you define a new model?
 
-`YOUR ANSWER HERE`
+`In the /models folder, and then create a new .py for that model.`
 
 ## 0.2 How would you add support for a new dataset? What files would you need to change?
 
-`YOUR ANSWER HERE`
+`We can support adding a new dataset by adding it into the build.py and datasets.py file in the /data folder.`
 
 ## 0.3 Where is the actual training code?
 
-`YOUR ANSWER HERE`
+`The training code can be found in main.py`
 
 ## 0.4 Create a diagram explaining the structure of `main.py` and the entire code repo.
 
 Be sure to include the 4 main functions in it (`main`, `train_one_epoch`, `validate`, `evaluate`) and how they interact with each other. Also explain where the other files are used. No need to dive too deep into any part of the code for now, the following parts will do deeper dives into each part of the code. For now, read the code just enough to understand how the pieces come together, not necessarily the specifics. You can use any tool to create the diagram (e.g. just explain it in nice markdown, draw it on paper and take a picture, use draw.io, excalidraw, etc.)
 
-`YOUR ANSWER HERE`
+### Main
+The 'main' function first gets the relevant dataset by using 'build_loader' from data, which builds the data loader and returns train, val, and test.
 
+the 'main' function then uses 'build_model' from /models. build_model will then build/return the selected model. 
+
+main will then build an optimizer using a similar method (calling 'build_optimizer' from optimizer.py). It uses cross entropy loss, and uses a cosine annealing learning rate.
+
+After definitions are done, main now runs 'train_one_epoch' for each epoch as defined. 'train_one_epoch' simply enumrates over the data loader and runs backpropagation and the optimizer on the model. It then calls 'validate' after each epoch, 'validate' being a no grad function that checks the model against the validation dataset.
+
+At the end of training, main calls 'evaluate' which simply checks the end accuracy of the model. 'evaluate' is also a no grad function.
 
 
 # Part 1: Datasets
@@ -76,53 +84,53 @@ The following questions relate to `data/build.py` and `data/datasets.py`.
 
 ### 1.0.0 What does `build_loader` do?
 
-`YOUR ANSWER HERE`
+`build_loader` simply acquires the relevant dataset as called and returns train, val, and test datasets. to whatever function called it.
 
 ### 1.0.1 What functions do you need to implement for a PyTorch Datset? (hint there are 3)
 
-`YOUR ANSWER HERE`
+`One must implement __getitem__, __len__, and _get_transforms (as well as __init__ the constructor)`
 
 ## 1.1 CIFAR10Dataset
 
 ### 1.1.0 Go through the constructor. What field actually contains the data? Do we need to download it ahead of time?
 
-`YOUR ANSWER HERE`
+`The self.dataset ultimately contains the dataset. The data was downloaded ahead of time, but it is likely that you can get the data at run time as well.`
 
 ### 1.1.1 What is `self.train`? What is `self.transform`?
 
-`YOUR ANSWER HERE`
+`self.train simply indicates whether we are generating a training dataset or not. self.transform indicates what changes we make to the data, potentially to make it more robust at test time.`
 
 ### 1.1.2 What does `__getitem__` do? What is `index`?
 
-`YOUR ANSWER HERE`
+`__getitem__... gets an item from the dataset. index is the index of the image in the dataset.`
 
 ### 1.1.3 What does `__len__` do?
 
-`YOUR ANSWER HERE`
+`returns the length of the dataset`
 
 ### 1.1.4 What does `self._get_transforms` do? Why is there an if statement?
 
-`YOUR ANSWER HERE`
+`self._get_transforms returns a transformation to perform on the data. There is an if statement because we do different transformations on train or test data. We perform more transformations on train data, likely to make the model more robust.`
 
 ### 1.1.5 What does `transforms.Normalize` do? What do the parameters mean? (hint: take a look here: https://pytorch.org/vision/main/generated/torchvision.transforms.Normalize.html)
 
-`YOUR ANSWER HERE`
+`Normalizes an image based on (first parameter) mean and (second parameter) standard deviation.`
 
 ## 1.2 MediumImagenetHDF5Dataset
 
 ### 1.2.0 Go through the constructor. What field actually contains the data? Where is the data actually stored on honeydew? What other files are stored in that folder on honeydew? How large are they?
 
-`YOUR ANSWER HERE`
+`self.file contains the actual data in the end. The actual data is /honey/nmep/medium-imagenet-nmep-96.hdf5. If the intended folder was /data, those contain many other datasets that are combined many GBs of data. If the intended folder is actually /honey/nmep, there are two other large files (the original zip file and database.db)`
 
 > *Some background*: HDF5 is a file format that stores data in a hierarchical structure. It is similar to a python dictionary. The files are binary and are generally really efficient to use. Additionally, `h5py.File()` does not actually read the entire file contents into memory. Instead, it only reads the data when you access it (as in `__getitem__`). You can learn more about [hdf5 here](https://portal.hdfgroup.org/display/HDF5/HDF5) and [h5py here](https://www.h5py.org/).
 
 ### 1.2.1 How is `_get_transforms` different from the one in CIFAR10Dataset?
 
-`YOUR ANSWER HERE`
+`It appends transforms rather than straight up adding them.`
 
 ### 1.2.2 How is `__getitem__` different from the one in CIFAR10Dataset? How many data splits do we have now? Is it different from CIFAR10? Do we have labels/annotations for the test set?
 
-`YOUR ANSWER HERE`
+`It has to get both the item and the label from the file. We do not get labels/annotations for the test set, compared to CIFAR 10 which gives labels for everything.`
 
 ### 1.2.3 Visualizing the dataset
 
@@ -130,7 +138,7 @@ Visualize ~10 or so examples from the dataset. There's many ways to do it - you 
 
 Be sure to also get the class names. You might notice that we don't have them loaded anywhere in the repo - feel free to fix it or just hack it together for now, the class names are in a file in the same folder as the hdf5 dataset.
 
-`YOUR ANSWER HERE`
+`in visualize.ipynb`
 
 
 # Part 2: Models
@@ -139,15 +147,15 @@ The following questions relate to `models/build.py` and `models/models.py`.
 
 ## What models are implemented for you?
 
-`YOUR ANSWER HERE`
+`lenet and resnet18`
 
 ## What do PyTorch models inherit from? What functions do we need to implement for a PyTorch Model? (hint there are 2)
 
-`YOUR ANSWER HERE`
+`Pytorch models inherit from nn.Module. You need a __init__ and a forward function.`
 
 ## How many layers does our implementation of LeNet have? How many parameters does it have? (hint: to count the number of parameters, you might want to run the code)
 
-`YOUR ANSWER HERE`
+`There are 5 trainable layers. In total, it has around 100k parameters.`
 
 
 
@@ -157,16 +165,23 @@ The following questions relate to `main.py`, and the configs in `configs/`.
 
 ## 3.0 What configs have we provided for you? What models and datasets do they train on?
 
-`YOUR ANSWER HERE`
+`We are provided lenet_base (trained on cifar), resnet18_base (also cifar), and resnet18_medium_imagenet (medium imagenet)`
 
 ## 3.1 Open `main.py` and go through `main()`. In bullet points, explain what the function does.
 
-`YOUR ANSWER HERE`
+- gets data as defined in config
+- gets model from config as defined
+- logs info about params, flops, etc.
+- builds optimizer as defined
+- runs training
+- runs validation after every epoc/calculates loss
+- runs evaluation after training is complete
+- logs information at the end
 
 ## 3.2 Go through `validate()` and `evaluate()`. What do they do? How are they different? 
 > Could we have done better by reusing code? Yes. Yes we could have but we didn't... sorry...
 
-`YOUR ANSWER HERE`
+`validate and evaluate both run the model on evaluate mode. the main difference is that evaluate simply returns predictions, while validate takes those predictions and checks loss as well as accuracy.`
 
 
 # Part 4: AlexNet
