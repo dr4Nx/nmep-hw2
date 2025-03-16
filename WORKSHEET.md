@@ -277,20 +277,38 @@ PRINT_FREQ: 99999
 
 ## 5.2 For just AlexNet, vary the learning rate by factors of 3ish or 10 (ie if it's 3e-4 also try 1e-4, 1e-3, 3e-3, etc) and plot all the loss plots on the same graph. What do you observe? What is the best learning rate? Try at least 4 different learning rates.
 
-`YOUR ANSWER HERE`
+1e-3 and 3e-3 are really bad. They result in a plateaued accuracy of around 10%, no better than guessing.
+
+3e-4 (provided learning rate) appears to somewhat overfit (plateauing at around 77% on validation) but overall is quite good. 
+
+1e-4 also works well but similarly plateaus around 76.1% for validation, implying some deeper issue leading to overfitting. 
+
+![learning rate plots](./images/lr.png)
 
 ## 5.3 Do the same with batch size, keeping learning rate and everything else fixed. Ideally the batch size should be a power of 2, but try some odd batch sizes as well. What do you observe? Record training times and loss/accuracy plots for each batch size (should be easy with W&B). Try at least 4 different batch sizes.
 
-`YOUR ANSWER HERE`
+![batch size plots](./images/batch_sizes2.png).
+
+Batch sizes don't seem to heavily affect accuracy, though loss is affected.
 
 ## 5.4 As a followup to the previous question, we're going to explore the effect of batch size on _throughput_, which is the number of images/sec that our model can process. You can find this by taking the batch size and dividing by the time per epoch. Plot the throughput for batch sizes of powers of 2, i.e. 1, 2, 4, ..., until you reach CUDA OOM. What is the largest batch size you can support? What trends do you observe, and why might this be the case?
 You only need to observe the training for ~ 5 epochs to average out the noise in training times; don't train to completion for this question! We're only asking about the time taken. If you're curious for a more in-depth explanation, feel free to read [this intro](https://horace.io/brrr_intro.html). 
 
-`YOUR ANSWER HERE`
+![throughput](./images/throughput.png)
+OOM at 32768, so maximum batch size achieved at 16384.
+
+
+Throughput increases as batch size increases, total training time optimized at ~256 batch size. Lower batch sizes are really bad for throughput and training time. I did not complete the really low batch sizes in order to save time.
 
 ## 5.5 Try different data augmentations. Take a look [here](https://pytorch.org/vision/stable/transforms.html) for torchvision augmentations. Try at least 2 new augmentation schemes. Record loss/accuracy curves and best accuracies on validation/train set.
 
-`YOUR ANSWER HERE`
+![augments](./images/augments.png)
+
+training times ->
+center crop -> 7:36
+gaussian blur -> 7:38
+
+no significant change in accuracy.
 
 ## 5.6 (optional) Play around with more hyperparameters. I recommend playing around with the optimizer (Adam, SGD, RMSProp, etc), learning rate scheduler (constant, StepLR, ReduceLROnPlateau, etc), weight decay, dropout, activation functions (ReLU, Leaky ReLU, GELU, Swish, etc), etc.
 

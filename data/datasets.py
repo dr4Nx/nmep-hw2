@@ -120,6 +120,9 @@ class CIFAR10Dataset(Dataset):
                 transforms.ToTensor(),
                 transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
                 transforms.Resize([self.img_size] * 2),
+                # transforms.CenterCrop(self.img_size)
+                # transforms.GaussianBlur(kernel_size=(5,5))
+
             ]
         else:
             transform = [

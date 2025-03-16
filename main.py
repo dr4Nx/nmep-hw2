@@ -71,7 +71,7 @@ def main(config):
     num = random.random()
     run = wandb.init(
         project='vision-zoo',
-        name=f"{config.MODEL.NAME}_{num}",
+        name=f"{config.MODEL.NAME}_{num}"
         config={
             "dataset": config.DATA.DATASET,
             "batch_size": config.DATA.BATCH_SIZE,
@@ -84,12 +84,9 @@ def main(config):
         },
     )
 
-    wandb.define_metric("epoch")
-    wandb.define_metric("train_acc", step_metric="epoch")
-    wandb.define_metric("train_loss", step_metric="epoch")
-    wandb.define_metric("val_acc", step_metric="epoch")
-    wandb.define_metric("val_loss", step_metric="epoch")
-
+ #   throughputs = []
+ #   batch_size = config.DATA.BATCH_SIZE
+    
     # print("Model = %s" % str(model_without_ddp))
     n_flops = flops.total()
     logger.info(flop_count_str(flops))
@@ -113,7 +110,7 @@ def main(config):
     logger.info("Start training")
     start_time = time.time()
     for epoch in range(config.TRAIN.START_EPOCH, config.TRAIN.EPOCHS):
-        train_acc1, train_loss = train_one_epoch(config, model, criterion, data_loader_train, optimizer, epoch)
+        train_acc1, train_loss, epoch_time = train_one_epoch(config, model, criterion, data_loader_train, optimizer, epoch)
         logger.info(f" * Train Acc {train_acc1:.3f} Train Loss {train_loss:.3f}")
         logger.info(f"Accuracy of the network on the {len(dataset_train)} train images: {train_acc1:.1f}%")
 
@@ -121,6 +118,8 @@ def main(config):
         val_acc1, val_loss = validate(config, data_loader_val, model)
         logger.info(f" * Val Acc {val_acc1:.3f} Val Loss {val_loss:.3f}")
         logger.info(f"Accuracy of the network on the {len(dataset_val)} val images: {val_acc1:.1f}%")
+        
+        # throughputs.append(batch_size / epoch_time)
 
         if epoch % config.SAVE_FREQ == 0 or epoch == (config.TRAIN.EPOCHS - 1):
             save_checkpoint(config, epoch, model, max_accuracy, optimizer, lr_scheduler, logger)
@@ -147,9 +146,13 @@ def main(config):
     
     run.summary["max_val_acc"] = max_accuracy
 
+    
+
     total_time = time.time() - start_time
     total_time_str = str(datetime.timedelta(seconds=int(total_time)))
     logger.info("Training time {}".format(total_time_str))
+
+    # wandb.log({"batch_size": batch_size, "throughput": np.mean(throughputs), "total_train_time": total_time}, step=batch_size)
 
     logger.info("Start testing")
     preds = evaluate(config, data_loader_test, model)
@@ -196,7 +199,7 @@ def train_one_epoch(config, model, criterion, data_loader, optimizer, epoch):
     )
     epoch_time = time.time() - start
     logger.info(f"EPOCH {epoch} training takes {datetime.timedelta(seconds=int(epoch_time))}")
-    return acc1_meter.avg, loss_meter.avg
+    return acc1_meter.avg, loss_meter.avg, epoch_time
 
 
 @torch.no_grad()
