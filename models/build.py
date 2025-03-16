@@ -1,6 +1,7 @@
 from .lenet import LeNet
 from .resnet import ResNet18
 from .alexnet import AlexNet
+from .resnet import ResNetBlock
 
 
 def build_model(config):

@@ -322,7 +322,8 @@ no significant change in accuracy.
 
 In `models/*`, we provided some skelly/guiding comments to implement ResNet. Implement it and train it on CIFAR10. Report training and validation curves, hyperparameters, best validation accuracy, and training time as compared to AlexNet. 
 
-`YOUR ANSWER HERE`
+Max Accuracy: 85.89%, Val Loss: 0.698
+
 
 ## 6.1 Visualize examples
 
