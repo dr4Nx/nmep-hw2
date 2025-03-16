@@ -324,6 +324,7 @@ In `models/*`, we provided some skelly/guiding comments to implement ResNet. Imp
 
 Max Accuracy: 85.89%, Val Loss: 0.698
 
+![resnet plots](./images/resnet_info.png)
 
 ## 6.1 Visualize examples
 
