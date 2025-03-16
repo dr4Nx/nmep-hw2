@@ -36,20 +36,26 @@ class ResNetBlock(nn.Module):
         and after the second batchnorm gets added to the shortcut.
         """
         ## YOUR CODE HERE
-        super().__init__()
-        self.features = nn.Sequential(
-            nn.Conv()
-        )
 
         ## Initialize the block with a call to super and make your conv and batchnorm layers.
         super(ResNetBlock, self).__init__()
-        # TODO: Initialize conv and batch norm layers with the correct parameters
+        self.features = nn.Sequential(
+            nn.Conv1d(in_channels, out_channels, 3, stride, padding=1, bias=False)
+            nn.Batchnorm2D(out_channels)
+            nn.ReLU()
+        )
 
         ## Use some conditional logic when defining your shortcut layer
         ## For a no-op layer, consider creating an empty nn.Sequential()
         self.shortcut = None  # ???
-        # TODO: Code here to initialize the shortcut layer
-
+        if (stride != 1 or out_channels != in_channels):
+                self.shortcut = nn.Sequential(
+                    nn.Conv1d(in_channels, out_channels, 1, stride, padding=1, bias=False),
+                    nn.Batchnorm2D(out_channels),
+                    nn.ReLU(),
+                )
+            else:
+                self.shortcut = nn.Sequential()
         ## END YOUR CODE
 
     def forward(self, x):
