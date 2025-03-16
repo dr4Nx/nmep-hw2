@@ -36,6 +36,10 @@ class ResNetBlock(nn.Module):
         and after the second batchnorm gets added to the shortcut.
         """
         ## YOUR CODE HERE
+        super().__init__()
+        self.features = nn.Sequential(
+            nn.Conv()
+        )
 
         ## Initialize the block with a call to super and make your conv and batchnorm layers.
         super(ResNetBlock, self).__init__()
