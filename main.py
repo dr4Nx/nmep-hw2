@@ -20,6 +20,10 @@ from models import build_model
 from optimizer import build_optimizer
 from utils import create_logger, load_checkpoint, save_checkpoint
 
+import wandb
+import random
+
+
 
 def parse_option():
     parser = argparse.ArgumentParser("Vision model training and evaluation script", add_help=False)
@@ -63,6 +67,28 @@ def main(config):
     toy_input = torch.rand(1, 3, config.DATA.IMG_SIZE, config.DATA.IMG_SIZE).to(device) # for measuring flops
     flops = FlopCountAnalysis(model, toy_input)
     del toy_input
+
+    num = random.random()
+    run = wandb.init(
+        project='vision-zoo',
+        name=f"{config.MODEL.NAME}_{num}",
+        config={
+            "dataset": config.DATA.DATASET,
+            "batch_size": config.DATA.BATCH_SIZE,
+            "image_size": config.DATA.IMG_SIZE,
+            "learning_rate": config.TRAIN.LR,
+            "epochs": config.TRAIN.EPOCHS,
+            "optimizer": config.TRAIN.OPTIMIZER.NAME,
+            "optimizer_betas": config.TRAIN.OPTIMIZER.BETAS,
+            "optimizer_momentum": config.TRAIN.OPTIMIZER.MOMENTUM
+        },
+    )
+
+    wandb.define_metric("epoch")
+    wandb.define_metric("train_acc", step_metric="epoch")
+    wandb.define_metric("train_loss", step_metric="epoch")
+    wandb.define_metric("val_acc", step_metric="epoch")
+    wandb.define_metric("val_loss", step_metric="epoch")
 
     # print("Model = %s" % str(model_without_ddp))
     n_flops = flops.total()
@@ -110,6 +136,16 @@ def main(config):
                 os.path.join(config.OUTPUT, "metrics.json"), mode="a", encoding="utf-8"
             ) as f:
                 f.write(json.dumps(log_stats) + "\n")
+        
+        wandb.log({
+            "epoch": epoch,
+            "train_acc": train_acc1, 
+            "train_loss": train_loss, 
+            "val_acc": val_acc1, 
+            "val_loss": val_loss
+        })
+    
+    run.summary["max_val_acc"] = max_accuracy
 
     total_time = time.time() - start_time
     total_time_str = str(datetime.timedelta(seconds=int(total_time)))

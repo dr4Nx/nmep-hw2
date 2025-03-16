@@ -212,7 +212,7 @@ Linear with num_classes output units
 ## 4.1 How many parameters does AlexNet have? How does it compare to LeNet? With the same batch size, how much memory do LeNet and AlexNet take up while training? 
 > (hint: use `gpuststat`)
 
-1456M for AlexNet vs 
+1456M for AlexNet vs 272M for LeNet.
 57.82324 million parameters for AlexNet vs 99 thousand for LeNet.
 
 
@@ -223,7 +223,39 @@ Report training and validation accuracy on AlexNet and LeNet. Report hyperparame
 > You can just copy the config file, don't need to write it all out again.
 > Also no need to tune the models much, you'll do it in the next part.
 
-`YOUR ANSWER HERE`
+Training accuracy: ~99.9%
+Validation accuracy: ~77.5%
+
+Config:
+AUG:
+  COLOR_JITTER: 0.4
+DATA:
+  BATCH_SIZE: 256
+  DATASET: "cifar10"
+  IMG_SIZE: 70
+  NUM_WORKERS: 32
+  PIN_MEMORY: True
+MODEL:
+  NAME: alexnet
+  NUM_CLASSES: 200
+  DROP_RATE: 0.5
+TRAIN:
+  EPOCHS: 50
+  WARMUP_EPOCHS: 10
+  LR: 3e-4
+  MIN_LR: 3e-5
+  WARMUP_LR: 3e-5
+  LR_SCHEDULER:
+    NAME: "cosine"
+  OPTIMIZER:
+    NAME: "adamw"
+    EPS: 1e-8
+    BETAS: (0.9, 0.999)
+    MOMENTUM: 0.9
+OUTPUT: "output/alexnet_cifar"
+SAVE_FREQ: 5
+PRINT_FREQ: 99999
+PRINT_FREQ: 99999
 
 
 
