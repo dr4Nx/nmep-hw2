@@ -71,7 +71,7 @@ def main(config):
     num = random.random()
     run = wandb.init(
         project='vision-zoo',
-        name=f"{config.MODEL.NAME}_{num}"
+        name=f"{config.MODEL.NAME}_{num}",
         config={
             "dataset": config.DATA.DATASET,
             "batch_size": config.DATA.BATCH_SIZE,
@@ -146,8 +146,11 @@ def main(config):
     
     run.summary["max_val_acc"] = max_accuracy
 
-    
+    ims, captions = visualize(data_loader_train, model)
+    labels = [wandb.Image(im, caption=cap) for im, cap in zip(ims, captions)]
+    wandb.log({"labels": labels})
 
+    
     total_time = time.time() - start_time
     total_time_str = str(datetime.timedelta(seconds=int(total_time)))
     logger.info("Training time {}".format(total_time_str))
@@ -251,6 +254,20 @@ def evaluate(config, data_loader, model):
         preds.append(output.cpu().numpy())
     preds = np.concatenate(preds)
     return preds
+
+
+@torch.no_grad()
+def visualize(data_loader, model):
+    model.eval()
+
+    images, targets = next(iter(data_loader))
+    images = images.cuda(non_blocking=True)
+    targets = targets.cuda(non_blocking=True)
+    model_preds = model(images)
+
+    ims = images[:20]
+    captions = [f"Prediction: {pred}, True: {torch.argmax(target)}" for pred, target in list(zip(targets, model_preds))[:20]]
+    return ims, captions
 
 
 if __name__ == "__main__":

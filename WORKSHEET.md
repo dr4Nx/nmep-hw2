@@ -330,8 +330,7 @@ Max Accuracy: 85.89%, Val Loss: 0.698
 
 Visualize a couple of the predictions on the validation set (20 or so). Be sure to include the ground truth label and the predicted label. You can use `wandb.log()` to log images or also just save them to disc any way you think is easy.
 
-`YOUR ANSWER HERE`
-
+![image](image.png)
 
 # Part 7: Kaggle submission
 
