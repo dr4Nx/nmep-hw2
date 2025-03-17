@@ -3,7 +3,7 @@ import pandas as pd
 from pathlib import Path
 
 
-def convert_predictions(input_path):
+def npytocsv(input_path):
     input_path = Path(input_path)
     if not input_path.exists():
         raise FileNotFoundError(f"Input file not found: {input_path}")
@@ -21,4 +21,4 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: python script.py <input_path>")
     else:
-        convert_predictions(sys.argv[1])
+        npytocsv(sys.argv[1])
